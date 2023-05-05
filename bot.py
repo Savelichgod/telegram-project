@@ -9,6 +9,7 @@ from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, \
 import keyboards as kb
 from consts import products_names, product_descriptions, info, \
     RegistrationStateGroup, product_index, LoginStateGroup
+# create_table - ненужный импорт
 from db_engine import create_table, append_to_table, get_products, delete_line, \
     get_all_id, get_ordered_names, set_ordered, get_ordered_ids, clear_database
 
@@ -39,6 +40,7 @@ async def main_menu(callback_query: CallbackQuery):
 async def show_catalog(callback_query: CallbackQuery):
     await callback_query.message.delete()
     global product_index
+    # [note] Проблемы с кодировкой файла (кажется такая же была на защите)
     with open('product_names.txt') as f:
         file_size = len(f.readlines())
     if product_index > file_size - 1:
@@ -204,6 +206,7 @@ async def cancel_buttons_handler(callback_query: CallbackQuery):
 @dp.callback_query_handler(lambda c: c.data == 'info')
 async def info_handler(callback_query: CallbackQuery):
     await callback_query.message.delete()
+    # Всё тот же вопрос - зачем эта переменная, если можно сразу info передавать?
     information = info
     await bot.send_message(callback_query.from_user.id,
                            information,
@@ -236,6 +239,7 @@ async def process_fio_add(message: Message, state: FSMContext):
     await RegistrationStateGroup.fio_add.set()
 
 
+# В следующих 5-ти функциях state не нужен
 @dp.message_handler(state=RegistrationStateGroup.fio_add)
 async def process_fio_add(message: Message, state: FSMContext):
     data[message.from_user.id]['fio'] = message.text
@@ -300,6 +304,7 @@ async def login(message: Message, state: FSMContext):
 
 @dp.message_handler(state=LoginStateGroup.password)
 async def password(message: Message, state: FSMContext):
+    # Как и говорил на защите - tmp не чистится, хотя после проверки логина и пароля данные уже не нужны
     tmp[message.from_user.id]['pass_1'] = message.text
     if data.get(message.from_user.id):
         if tmp.get(message.from_user.id).get('login') == data.get(message.from_user.id).get('login'):
@@ -331,6 +336,7 @@ async def password(message: Message, state: FSMContext):
 @dp.message_handler()
 async def default_msg(message: Message):
     await message.delete()
+    # [note] Debug-информацию либо надо было убрать перед коммитом, либо делать через логирование
     print(data.get(message.from_user.id))
     await bot.send_message(message.from_user.id,
                            'У меня нет на это ответа :(\nВыберите пункт из меню.',

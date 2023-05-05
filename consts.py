@@ -1,5 +1,6 @@
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
+# [note] Константы следует называть большими буквами
 product_index = 0
 with open('product_names.txt') as file:
     products_names = file.readlines()
